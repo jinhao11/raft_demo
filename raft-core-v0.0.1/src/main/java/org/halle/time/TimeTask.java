@@ -1,5 +1,9 @@
 package org.halle.time;
 
-public class TimeTask {
-
+public interface TimeTask {
+    int adjustTimeout();
+    void doRun();
+    void init();
+    void start();
+    void stop();
 }
