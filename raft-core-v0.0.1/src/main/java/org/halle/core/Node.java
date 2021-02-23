@@ -26,6 +26,7 @@ public class Node {
     private TimerFactory timerFactory;
     private ScheduleManager scheduleManager ;
     private VoteConfig voteConfig;
+    private long lastHeartbeatTimestamp;
     private Node(){
 
     }
@@ -35,8 +36,8 @@ public class Node {
                 .otherNodes(null).rpcClient(new RpcClient()).voteConfig(new VoteConfig())
                 .rpcServer(new RpcServer(port)).scheduleManager(new ScheduleManager(timerThreadNum))
                 .timerFactory(new TimerFactory(scheduleManager))
-                .electionTimer(timerFactory.getElectionTimeout())
-                .heartbeatTimer(timerFactory.getHeartBeatTimeout()).build();
+                .electionTimer(timerFactory.getElectionTimeout(this))
+                .heartbeatTimer(timerFactory.getHeartBeatTimeout(this)).build();
     }
 
 
