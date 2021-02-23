@@ -17,11 +17,11 @@ public class ScheduleManager {
 
     public ScheduledFuture<?> schedule(Runnable command, long timeout) {
         Requires.requireNonNull(executor,"ScheduledExecutorService is null");
-        return executor.schedule(command,timeout,TimeUnit.SECONDS);
+        return executor.schedule(command,timeout,TimeUnit.MILLISECONDS);
     }
 
     public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long period){
         Requires.requireNonNull(executor,"ScheduledExecutorService is null");
-        return executor.schedule(command,period,TimeUnit.SECONDS);
+        return executor.schedule(command,period,TimeUnit.MILLISECONDS);
     }
 }

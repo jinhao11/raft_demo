@@ -1,6 +1,9 @@
 package org.halle.rpc;
 
-public class Message<T> {
-    private T data;
+import lombok.Data;
+
+@Data
+public class Message {
+    private String msg;
     private Long term;
 }

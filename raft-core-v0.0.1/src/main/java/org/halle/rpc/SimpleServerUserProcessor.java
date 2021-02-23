@@ -20,6 +20,9 @@ import com.alipay.remoting.BizContext;
 import com.alipay.remoting.InvokeContext;
 import com.alipay.remoting.NamedThreadFactory;
 import com.alipay.remoting.rpc.protocol.SyncUserProcessor;
+import org.apache.commons.lang.StringUtils;
+import org.halle.constant.Constant;
+import org.halle.core.Node;
 import org.halle.util.Requires;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,12 +63,21 @@ public class SimpleServerUserProcessor extends SyncUserProcessor<RequestBody> {
 
     private String              remoteAddr;
     private CountDownLatch      latch          = new CountDownLatch(1);
+    private Node currentNode;
 
     public SimpleServerUserProcessor() {
         this.delaySwitch = false;
         this.delayMs = 0;
         this.executor = new ThreadPoolExecutor(1, 3, 60, TimeUnit.SECONDS,
             new ArrayBlockingQueue<Runnable>(4), new NamedThreadFactory("Request-process-pool"));
+    }
+
+    public SimpleServerUserProcessor(Node node) {
+        this.delaySwitch = false;
+        this.delayMs = 0;
+        this.executor = new ThreadPoolExecutor(1, 3, 60, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<Runnable>(4), new NamedThreadFactory("Request-process-pool"));
+        this.currentNode = node;
     }
 
     public SimpleServerUserProcessor(long delay) {
@@ -91,28 +103,21 @@ public class SimpleServerUserProcessor extends SyncUserProcessor<RequestBody> {
     public Object handleRequest(BizContext bizCtx, RequestBody request) throws Exception {
         logger.warn("Request received:" + request + ", timeout:" + bizCtx.getClientTimeout()
                     + ", arriveTimestamp:" + bizCtx.getArriveTimestamp());
-
-        if (bizCtx.isRequestTimeout()) {
-            String errMsg = "Stop process in server biz thread, already timeout!";
-            processTimes(request);
-            logger.warn(errMsg);
-            throw new Exception(errMsg);
+        if(request.getRequestType() == Constant.REQUEST_MSG_TYPE_REQVOTE){
+            if(request.getData() instanceof ElectionMsg){
+                ElectionMsg ele = (ElectionMsg)request.getData();
+                if(StringUtils.isNotEmpty( currentNode.getVoteConfig().getVoteFor() )){
+                    return Result.getDefaultFailResult("I am sorry, I was married");
+                }
+                if(ele.getTerm()<currentNode.getVoteConfig().getCurrentTerm()){
+                    return Result.getDefaultFailResult("I am sorry,you are too young");
+                }
+                currentNode.getVoteConfig().setVoteFor(request.getFrom());
+                return Result.getDefaultSuccessResult("Congratulations，you are admitted");
+            }
         }
+        return Result.getDefaultSuccessResult("Congratulations，you are admitted");
 
-        this.remoteAddr = bizCtx.getRemoteAddress();
-
-        //test biz context get connection
-        Requires.requireNonNull(bizCtx.getConnection());
-        Long waittime = (Long) bizCtx.getInvokeContext().get(InvokeContext.BOLT_PROCESS_WAIT_TIME);
-        Requires.requireNonNull(waittime);
-        if (logger.isInfoEnabled()) {
-            logger.info("Server User processor process wait time {}", waittime);
-        }
-
-        latch.countDown();
-        logger.warn("Server User processor say, remote address is [" + this.remoteAddr + "].");
-        processTimes(request);
-        return null;
     }
 
     @Override

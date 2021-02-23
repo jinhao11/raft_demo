@@ -20,6 +20,7 @@ import com.alipay.remoting.BizContext;
 import com.alipay.remoting.InvokeContext;
 import com.alipay.remoting.NamedThreadFactory;
 import com.alipay.remoting.rpc.protocol.SyncUserProcessor;
+import org.halle.core.Node;
 import org.halle.util.Requires;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,12 +60,20 @@ public class SimpleClientUserProcessor extends SyncUserProcessor<RequestBody> {
     private AtomicInteger       syncTimes      = new AtomicInteger();
     private AtomicInteger       futureTimes    = new AtomicInteger();
     private AtomicInteger       callbackTimes  = new AtomicInteger();
-
+    private Node currentNode ;
     public SimpleClientUserProcessor() {
         this.delaySwitch = false;
         this.delayMs = 0;
         this.executor = new ThreadPoolExecutor(1, 3, 60, TimeUnit.SECONDS,
             new ArrayBlockingQueue<Runnable>(4), new NamedThreadFactory("Request-process-pool"));
+    }
+
+    public SimpleClientUserProcessor(Node node) {
+        this.delaySwitch = false;
+        this.delayMs = 0;
+        this.executor = new ThreadPoolExecutor(1, 3, 60, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<Runnable>(4), new NamedThreadFactory("Request-process-pool"));
+        this.currentNode = node;
     }
 
     public SimpleClientUserProcessor(long delay) {

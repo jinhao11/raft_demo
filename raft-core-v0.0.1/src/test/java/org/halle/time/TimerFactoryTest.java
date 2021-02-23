@@ -9,7 +9,7 @@ public class TimerFactoryTest {
     @Test
     public void getElectionTimeout() throws Exception{
         TimerFactory timerFactory = new TimerFactory(new ScheduleManager(2));
-        Timer timer = timerFactory.getElectionTimeout();
+        Timer timer = timerFactory.getElectionTimeout(null);
         timer.start(5);
         Thread.sleep(3000);
         timer.stop();

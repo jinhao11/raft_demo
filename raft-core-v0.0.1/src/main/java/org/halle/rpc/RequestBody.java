@@ -8,6 +8,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class RequestBody<T> {
     private T data;
+    private String from;
+    private long timestamp;
     private int requestType;
 
 }
