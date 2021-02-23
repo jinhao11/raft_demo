@@ -10,6 +10,7 @@
     <version>1.0-SNAPSHOT</version>
     <modules>
         <module>raft-core</module>
+        <module>raft-core-v0.0.1</module>
     </modules>
 
     <name>raft_demo</name>
@@ -50,6 +51,7 @@
         <protostuff.version>1.6.0</protostuff.version>
         <rocksdb.version>5.18.4</rocksdb.version>
         <slf4j.version>1.7.21</slf4j.version>
+        <lombok.version>1.18.12</lombok.version>
     </properties>
 
     <dependencyManagement>
@@ -61,7 +63,12 @@
                 <artifactId>raft-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <scope>provided</scope>
+                <version>${lombok.version}</version>
+            </dependency>
             <!-- asm -->
             <dependency>
                 <groupId>org.ow2.asm</groupId>
